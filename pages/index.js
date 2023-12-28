@@ -281,65 +281,68 @@ export default function Home() {
   /*
       renderButton: Returns a button based on the state of the dapp
   */
-  const renderButton = () => {
-    // If wallet is not connected, return a button which allows them to connect their wllet
-    // If we are currently waiting for something, return a loading button
-
-    return (
-      <div>
-        <div>
-          {(
-            <div>
-              <input
-                type="number"
-                placeholder="Amount of RBNT"
-                onChange={async (e) => {
-                  setAddEther(e.target.value || "0");
-                  // calculate the number of CD tokens that
-                  // can be added given  `e.target.value` amount of Eth
-                  const _addCDTokens = await calculateCD(
-                    e.target.value || "0",
-                    etherBalanceContract,
-                    reservedCD
-                  );
-                  setAddCDTokens(_addCDTokens);
-                }}
-                className=" mt-4 ml-8 font-semibold px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
-              />
-              <div className={styles.inputDiv}>
-                {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
-                {`You will need ${utils.formatEther(addCDTokens)} RUSD Tokens`}
+      const renderButton = () => {
+        // If wallet is not connected, return a button which allows them to connect their wllet
+        // If we are currently waiting for something, return a loading button
+    
+        return (
+          
+            <div className="main flex-col ml-16 mt-5 w-max">
+              
+                <div className="flex-col align-middle justify-center">
+                  <div className="w-[100%] flex ml-4 h-[100%] ">
+                  <input
+                    type="number"
+                    placeholder="Amount of RBNT"
+                    onChange={async (e) => {
+                      setAddEther(e.target.value || "0");
+                      // calculate the number of CD tokens that
+                      // can be added given  e.target.value amount of Eth
+                      const _addCDTokens = await calculateCD(
+                        e.target.value || "0",
+                        etherBalanceContract,
+                        reservedCD
+                      );
+                      setAddCDTokens(_addCDTokens);
+                    }}
+                    className=" mt-4   font-semibold px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                  />
+                  <div className={styles.inputDiv}>
+                    {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
+                    {`You will need ${utils.formatEther(addCDTokens)} RUSD Tokens`}
+                  </div>
+                  </div>
+    
+                  <button className="px-10 rounded-xl mb-5  border-1 px-14 text-white py-4 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 hover:from-yellow-500 hover:to-purple-500 hover:via-red-500 ml-4 mt-3" onClick={_addLiquidity}>
+                    Add
+                  </button>
+                </div>
+              <div className="flex-col justify-center">
+                <div className=" ml-4 flex w-[100%] ">
+                <input
+                  type="number"
+                  placeholder="Amount of LP Tokens"
+                  onChange={async (e) => {
+                    setRemoveLPTokens(e.target.value || "0");
+                    // Calculate the amount of Ether and CD tokens that the user would receive
+                    // After he removes e.target.value amount of LP tokens
+                    await _getTokensAfterRemove(e.target.value || "0");
+                  }}
+                  className=" mt-4   font-semibold px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                />
+                <div className={styles.inputDiv}>
+                  {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
+                  {`You will get ${utils.formatEther(removeCD)} RUSD and ${utils.formatEther(removeEther)} RBNT`}
+                </div>
+                </div>
+                <button className="px-10 rounded-xl border-black border-1 text-white py-4 bg-red-600 ml-4 mt-3 mb-5" onClick={_removeLiquidity}>
+                  Remove
+                </button>
               </div>
-              <button className={styles.button1} onClick={_addLiquidity}>
-                Add
-              </button>
             </div>
-          )}
-          <div>
-            <input
-              type="number"
-              placeholder="Amount of LP Tokens"
-              onChange={async (e) => {
-                setRemoveLPTokens(e.target.value || "0");
-                // Calculate the amount of Ether and CD tokens that the user would receive
-                // After he removes `e.target.value` amount of `LP` tokens
-                await _getTokensAfterRemove(e.target.value || "0");
-              }}
-              className={styles.input}
-            />
-            <div className={styles.inputDiv}>
-              {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
-              {`You will get ${utils.formatEther(removeCD)} RUSD and ${utils.formatEther(removeEther)} RBNT`}
-            </div>
-            <button className={styles.button1} onClick={_removeLiquidity}>
-              Remove
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
+          
+        );
+      };
   return (
     <div className=" flex-col justify-center h-[100vh] bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
       <div className=" flex justify-between items-center">
@@ -360,10 +363,10 @@ export default function Home() {
           <div className=" flex bg-red-300 h-96 w-[50%] ml-20 rounded-3xl">
             {renderButton()}
           </div>
-          <div className=" flex-col bg-red-300 w-[50%] mr-20 rounded-3xl">
-            <p className=" ml-4 text-white font-semibold text-3xl mt-4">You have: </p>
+          <div className=" flex-col bg-red-300 w-[50%] mr-20 rounded-3xl ">
+            <p className=" ml-4 text-white font-semibold text-3xl mt-8 pb-8 pt-2">You have: </p>
             <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(cdBalance)} RUSD</p>
-            <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(ethBalance)} <span className=" text-red-600">RBNT</span></p>
+            <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(ethBalance)} <span className=" text-red-700">RBNT</span></p>
             <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(lpBalance)} <span className="bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">RWADex LP Tokens</span></p>
           </div>
         </div>}

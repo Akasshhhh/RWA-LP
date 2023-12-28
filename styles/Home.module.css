@@ -54,13 +54,13 @@
 }
 
 .inputDiv {
-  width: 200px;
-  height: 100%;
-  padding: 1%;
+  width: 300px;
+  font-size: large;
+  font-weight: bolder;
+  height: 40px;
   margin: 2%;
-  border: lightslategray;
-  box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
+  margin-left: 10%;
+  margin-top: 4%;
 }
 .select {
   border-radius: 4px;
