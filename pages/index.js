@@ -216,16 +216,16 @@ export default function Home() {
                       );
                       setAddCDTokens(_addCDTokens);
                     }}
-                    className=" mt-4   font-semibold px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                    className=" mt-4   font-semibold px-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
                   />
                   <div className={styles.inputDiv}>
                     {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
-                    {`You will need ${utils.formatEther(addCDTokens)} RUSD Tokens`}
+                    {`You will need ${utils.formatEther(addCDTokens)} RUSD Tokens to add liquidity`}
                   </div>
                   </div>
     
                   <button className=" rounded-xl mb-5  border-1 px-14 text-white py-4 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 hover:from-yellow-500 hover:to-purple-500 hover:via-red-500 ml-4 mt-3" onClick={_addLiquidity}>
-                    Add
+                    Add Liquidity
                   </button>
                 </div>
               <div className="flex-col justify-center">
@@ -239,7 +239,7 @@ export default function Home() {
                     // After he removes e.target.value amount of LP tokens
                     await _getTokensAfterRemove(e.target.value || "0");
                   }}
-                  className=" mt-4   font-semibold px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                  className=" mt-4   font-semibold px-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
                 />
                 <div className={styles.inputDiv}>
                   {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
@@ -247,7 +247,7 @@ export default function Home() {
                 </div>
                 </div>
                 <button className="px-10 rounded-xl border-black border-1 text-white py-4 bg-red-600 ml-4 mt-3 mb-5" onClick={_removeLiquidity}>
-                  Remove
+                  Remove Liquidity
                 </button>
               </div>
             </div>
