@@ -35,6 +35,9 @@ export default function Home() {
   const [removeEther, setRemoveEther] = useState(zero);
   const [removeCD, setRemoveCD] = useState(zero);
   const [removeLPTokens, setRemoveLPTokens] = useState("0");
+  const [liquidityAdded, setLiquidityAdded] = useState(false);
+  const [removedLiquidity, setRemovedLiquidity] = useState(false);
+  const [activeMessage, setActiveMessage] = useState(0);
 
 
   const [ethSelected, setEthSelected] = useState(true);
@@ -87,6 +90,8 @@ export default function Home() {
         setAddCDTokens(zero);
         // Get amounts for all values after the liquidity has been added
         await getAmounts();
+        setLiquidityAdded(true);
+        setActiveMessage(1);
       } else {
         setAddCDTokens(zero);
       }
@@ -109,6 +114,8 @@ export default function Home() {
       await getAmounts();
       setRemoveCD(zero);
       setRemoveEther(zero);
+      setRemovedLiquidity(true);
+      setActiveMessage(2);
     } catch (err) {
       console.error(err);
       setLoading(false);
@@ -227,6 +234,7 @@ export default function Home() {
                   <button className=" rounded-xl mb-5  border-1 px-14 text-white py-4 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 hover:from-yellow-500 hover:to-purple-500 hover:via-red-500 ml-4 mt-3" onClick={_addLiquidity}>
                     Add Liquidity
                   </button>
+                  
                 </div>
               <div className="flex-col justify-center">
                 <div className=" ml-4 flex w-[100%] ">
@@ -281,6 +289,8 @@ export default function Home() {
             <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(lpBalance)} <span className="bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">RWADex LP Tokens</span></p>
           </div>
         </div>}
+        {liquidityAdded && activeMessage === 1?<p className=" pt-6 text-3xl text-center font-bold bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">Liquidity Added Successfully!</p>:<></>}
+        {removedLiquidity && activeMessage === 2?<p className=" pt-6 text-3xl text-center font-bold ">Liquidity removed successfully!</p>:<></>}
     </div>
   );
 }
