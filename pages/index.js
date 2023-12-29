@@ -1,4 +1,4 @@
-import { BigNumber, providers, utils } from "ethers";
+import { BigNumber, ethers, providers, utils } from "ethers";
 import Head from "next/head";
 import React, { useEffect, useRef, useState } from "react";
 import Web3Modal from "web3modal";
@@ -84,7 +84,13 @@ export default function Home() {
         const signer = await getProviderOrSigner(true);
         setLoading(true);
         // call the addLiquidity function from the utils folder
-        await addLiquidity(signer, addCDTokens, addEtherWei);
+        const tx = await addLiquidity(signer, addCDTokens, addEtherWei);
+      
+      // Wait for the transaction receipt to confirm its status
+      const receipt = await tx.wait();
+
+      if (receipt.status === 1) {
+        // Transaction successful
         setLoading(false);
         // Reinitialize the CD tokens
         setAddCDTokens(zero);
@@ -93,12 +99,20 @@ export default function Home() {
         setLiquidityAdded(true);
         setActiveMessage(1);
       } else {
+        // Transaction failed
+        setLoading(false);
+        setLiquidityAdded(false);
+        setActiveMessage(0);
+      }
+      } else {
         setAddCDTokens(zero);
       }
     } catch (err) {
       console.error(err);
       setLoading(false);
       setAddCDTokens(zero);
+      setLiquidityAdded(false);
+      setActiveMessage(0);
     }
   };
 
@@ -109,20 +123,36 @@ export default function Home() {
       const removeLPTokensWei = utils.parseEther(removeLPTokens);
       setLoading(true);
       // Call the removeLiquidity function from the `utils` folder
-      await removeLiquidity(signer, removeLPTokensWei);
-      setLoading(false);
-      await getAmounts();
-      setRemoveCD(zero);
-      setRemoveEther(zero);
-      setRemovedLiquidity(true);
-      setActiveMessage(2);
+      const tx = await removeLiquidity(signer, removeLPTokensWei);
+      
+      // Wait for the transaction receipt to confirm its status
+      const receipt = await tx.wait();
+  
+      if (receipt.status === 1) {
+        // Transaction successful
+        setLoading(false);
+        await getAmounts();
+        setRemoveCD(zero);
+        setRemoveEther(zero);
+        setRemovedLiquidity(true);
+        setActiveMessage(2);
+      } else {
+        // Transaction failed
+        setLoading(false);
+        setRemovedLiquidity(false);
+        setActiveMessage(0);
+      }
     } catch (err) {
       console.error(err);
       setLoading(false);
       setRemoveCD(zero);
       setRemoveEther(zero);
+      // Handle the error state here
+      setRemovedLiquidity(false);
+      setActiveMessage(0);
     }
   };
+  
 
   const _getTokensAfterRemove = async (_removeLPTokens) => {
     try {
@@ -195,21 +225,21 @@ export default function Home() {
       initialize();
     }
   }, [walletConnected]);
-  
+  console.log(utils.formatEther(cdBalance));
 
 
 
 
-      const renderButton = () => {
+      const addLiqButton = () => {
 
     
         return (
           
-            <div className="main flex-col ml-16 mt-5 w-max">
               
-                <div className="flex-col align-middle justify-center">
+                <div className="flex-col align-middle justify-center ">
+                  <p className=" text-xl font-bold inline-block ml-6">Add Liquidity</p>
                   <div className="w-[100%] flex ml-4 h-[100%] ">
-                  <input
+                  <input min={0.001}
                     type="number"
                     placeholder="Amount of RBNT"
                     onChange={async (e) => {
@@ -223,7 +253,7 @@ export default function Home() {
                       );
                       setAddCDTokens(_addCDTokens);
                     }}
-                    className=" mt-4   font-semibold px-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                    className=" mt-4 font-semibold pl-2 pr-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
                   />
                   <div className={styles.inputDiv}>
                     {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
@@ -236,9 +266,16 @@ export default function Home() {
                   </button>
                   
                 </div>
-              <div className="flex-col justify-center">
+              
+          
+        );
+      };
+
+      const removeLiqButton =() =>{
+       return (<div className="flex-col justify-center">
+              <p className=" text-xl font-bold inline-block ml-6 mt-4 ">Remove Liquidity</p>
                 <div className=" ml-4 flex w-[100%] ">
-                <input
+                <input min={0.0000001} 
                   type="number"
                   placeholder="Amount of LP Tokens"
                   onChange={async (e) => {
@@ -247,7 +284,7 @@ export default function Home() {
                     // After he removes e.target.value amount of LP tokens
                     await _getTokensAfterRemove(e.target.value || "0");
                   }}
-                  className=" mt-4   font-semibold px-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                  className=" mt-4 font-semibold pl-2 pr-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
                 />
                 <div className={styles.inputDiv}>
                   {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
@@ -257,13 +294,10 @@ export default function Home() {
                 <button className="px-10 rounded-xl border-black border-1 text-white py-4 bg-red-600 ml-4 mt-3 mb-5" onClick={_removeLiquidity}>
                   Remove Liquidity
                 </button>
-              </div>
-            </div>
-          
-        );
-      };
+              </div>)
+      }
   return (
-    <div className=" flex-col justify-center h-[100vh] bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
+    <div className=" flex-col justify-center min-h-[100vh] bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
       <div className=" flex justify-between items-center">
         <div className="ml-8 mt-8 ">
           <Image src={lp} height={80} width={80} className=" rounded-xl" ></Image>
@@ -278,13 +312,19 @@ export default function Home() {
         <p className=" text-center text-3xl font-semibold bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">Connect Your Wallet.</p>
       </div>}
       {walletConnected &&
-        <div className=" flex justify-center pt-[2%] gap-10">
-          <div className=" flex bg-red-300 h-96 w-[50%] ml-20 rounded-3xl">
-            {renderButton()}
+        <div className=" flex justify-center pt-[2%] gap-8 ">
+          <div className=" flex bg-red-300 h-[30rem] w-[50%] pt-10 ml-20 pl-10 rounded-3xl">
+          <div className="main flex-col ml-16 mt-5 w-max ">
+            {addLiqButton()}
+            {lpBalance > 0?removeLiqButton():<></>}
           </div>
-          <div className=" flex-col bg-red-300 w-[50%] mr-20 rounded-3xl ">
+          </div>
+          <div className=" flex-col bg-red-300 w-[50%] mr-20 rounded-3xl pt-10 pl-10">
             <p className=" ml-4 text-white font-semibold text-3xl mt-8 pb-8 pt-2">You have: </p>
-            <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(cdBalance)} RUSD</p>
+            
+            <p className=" ml-4 font-bold text-3xl ">{utils.formatEther(cdBalance)} RUSD</p>
+            <p className=" mt-1/2 ml-4 text-sm w-auto font-medium">Not enough RUSD? Swap your RBNT to RUSD <a className=" italic font-bold text-blue-900" target="_blank" href="https://rwa-dex.vercel.app/">here</a>.</p>
+            
             <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(ethBalance)} <span className=" text-red-700">RBNT</span></p>
             <p className=" ml-4 font-bold text-3xl mt-3">{utils.formatEther(lpBalance)} <span className="bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">RWADex LP Tokens</span></p>
           </div>
