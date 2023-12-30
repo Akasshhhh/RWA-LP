@@ -317,10 +317,10 @@ export default function Home() {
         <h1 className=" pt-[5%] text-5xl font-semibold font-mono text-center ">RWA Liquidity Pool</h1>
         <p className="text-2xl font-semibold font-mono pt-[1%] text-center">Provide liquidity to RBNT-RUSD token pair in seconds.</p>
       </div>
-      {!walletConnected && <div className=" flex justify-center h-96 border-4 mt-4 ml-4 mr-4 rounded-r-lg items-center">
+      {/* {!walletConnected && <div className=" flex justify-center h-96 border-4 mt-4 ml-4 mr-4 rounded-r-lg items-center">
         <p className=" text-center text-3xl font-semibold bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">Connect Your Wallet.</p>
-      </div>}
-      {walletConnected &&
+      </div>} */}
+      {
         <div className=" flex justify-center pt-[2%] gap-8  ">
           <div className=" flex-col bg-red-300 h-[30rem] w-[50%] pt-10 ml-10 rounded-3xl ">
             <div className="main flex-col m-auto mt-5 w-max ">
