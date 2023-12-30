@@ -84,26 +84,14 @@ export default function Home() {
         const signer = await getProviderOrSigner(true);
         setLoading(true);
         // call the addLiquidity function from the utils folder
-        const tx = await addLiquidity(signer, addCDTokens, addEtherWei);
-
-        // Wait for the transaction receipt to confirm its status
-        const receipt = await tx.wait();
-
-        if (receipt.status === 1) {
-          // Transaction successful
-          setLoading(false);
-          // Reinitialize the CD tokens
-          setAddCDTokens(zero);
-          // Get amounts for all values after the liquidity has been added
-          await getAmounts();
-          setLiquidityAdded(true);
-          setActiveMessage(1);
-        } else {
-          // Transaction failed
-          setLoading(false);
-          setLiquidityAdded(false);
-          setActiveMessage(0);
-        }
+        await addLiquidity(signer, addCDTokens, addEtherWei);
+        setLoading(false);
+        // Reinitialize the CD tokens
+        setAddCDTokens(zero);
+        // Get amounts for all values after the liquidity has been added
+        await getAmounts();
+        setLiquidityAdded(true);
+        setActiveMessage(1);
       } else {
         setAddCDTokens(zero);
       }
@@ -111,8 +99,6 @@ export default function Home() {
       console.error(err);
       setLoading(false);
       setAddCDTokens(zero);
-      setLiquidityAdded(false);
-      setActiveMessage(0);
     }
   };
 
@@ -123,36 +109,20 @@ export default function Home() {
       const removeLPTokensWei = utils.parseEther(removeLPTokens);
       setLoading(true);
       // Call the removeLiquidity function from the `utils` folder
-      const tx = await removeLiquidity(signer, removeLPTokensWei);
-
-      // Wait for the transaction receipt to confirm its status
-      const receipt = await tx.wait();
-
-      if (receipt.status === 1) {
-        // Transaction successful
-        setLoading(false);
-        await getAmounts();
-        setRemoveCD(zero);
-        setRemoveEther(zero);
-        setRemovedLiquidity(true);
-        setActiveMessage(2);
-      } else {
-        // Transaction failed
-        setLoading(false);
-        setRemovedLiquidity(false);
-        setActiveMessage(0);
-      }
+      await removeLiquidity(signer, removeLPTokensWei);
+      setLoading(false);
+      await getAmounts();
+      setRemoveCD(zero);
+      setRemoveEther(zero);
+      setRemovedLiquidity(true);
+      setActiveMessage(2);
     } catch (err) {
       console.error(err);
       setLoading(false);
       setRemoveCD(zero);
       setRemoveEther(zero);
-      // Handle the error state here
-      setRemovedLiquidity(false);
-      setActiveMessage(0);
     }
   };
-
 
   const _getTokensAfterRemove = async (_removeLPTokens) => {
     try {
@@ -225,127 +195,94 @@ export default function Home() {
       initialize();
     }
   }, [walletConnected]);
-  console.log(utils.formatEther(cdBalance));
 
-
-
-
-  const addLiqButton = () => {
-
-
-    return (
-
-
-      <div className="flex-col align-middle justify-center ">
-        <p className=" text-xl font-bold inline-block ml-6">Add Liquidity</p>
-        <div className="w-[100%] flex ml-4 h-[100%] ">
-          <input min={0.001}
-            type="number"
-            placeholder="Amount of RBNT"
-            onChange={async (e) => {
-              setAddEther(e.target.value || "0");
-              // calculate the number of CD tokens that
-              // can be added given  e.target.value amount of Eth
-              const _addCDTokens = await calculateCD(
-                e.target.value || "0",
-                etherBalanceContract,
-                reservedCD
-              );
-              setAddCDTokens(_addCDTokens);
-            }}
-            className=" mt-4 font-semibold pl-2 pr-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
-          />
-          <div className={styles.inputDiv}>
-            {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
-            {`You will need ${utils.formatEther(addCDTokens)} RUSD Tokens to add liquidity`}
-                        <p className=" bg-red-400 rounded-md p-1 mt-1 text-sm w-auto font-medium">Not enough RUSD? Swap your RBNT to RUSD <a className=" italic font-bold text-blue-900" target="_blank" href="https://rwa-dex.vercel.app/">here</a>.</p>
-
-          </div>
-        </div>
-
-        <button className=" rounded-xl mb-5  border-1 px-14 text-white py-4 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 hover:from-yellow-500 hover:to-purple-500 hover:via-red-500 ml-4 mt-3" onClick={_addLiquidity}>
-          Add Liquidity
-        </button>
-
-      </div>
-
-
-    );
-  };
-
-  const removeLiqButton = () => {
-    return (<div className="flex-col justify-center">
-      <p className=" text-xl font-bold inline-block ml-6 mt-4 ">Remove Liquidity</p>
-      <div className=" ml-4 flex w-[100%] ">
-        <input min={0.0000001}
-          type="number"
-          placeholder="Amount of LP Tokens"
-          onChange={async (e) => {
-            setRemoveLPTokens(e.target.value || "0");
-            // Calculate the amount of Ether and CD tokens that the user would receive
-            // After he removes e.target.value amount of LP tokens
-            await _getTokensAfterRemove(e.target.value || "0");
-          }}
-          className=" mt-4 font-semibold pl-2 pr-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
-        />
-        <div className={styles.inputDiv}>
-          {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
-          {`You will get ${utils.formatEther(removeCD)} RUSD and ${utils.formatEther(removeEther)} RBNT`}
-        </div>
-      </div>
-      <button className="px-10 rounded-xl border-black border-1 text-white py-4 bg-red-600 ml-4 mt-3 mb-5" onClick={_removeLiquidity}>
-        Remove Liquidity
-      </button>
-    </div>)
-  }
   return (
-    <div className=" flex-col justify-center pb-20 min-h-[100vh] bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
+    <div className=" flex-col justify-center pb-32 min-h-[100vh] bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
       <div className=" flex justify-between items-center">
-        <div className="ml-8 ">
+        <div className="ml-8 mt-10 xl:mt-0 ">
           <Image src={lp} height={80} width={80} className=" rounded-xl" ></Image>
         </div>
         <div className=" flex gap-8 pt-20">
-        {walletConnected?<div className="flex-col bg-red-100 pr-10">
-        <p className=" ml-4 font-bold text-lg md:text-3xl ">{Number(utils.formatEther(cdBalance)).toFixed(5)} RUSD</p>
-        <p className=" ml-4 font-bold text-lg xl:text-3xl mt-3">{Number(utils.formatEther(ethBalance)).toFixed(5)} <span className=" text-red-700">RBNT</span></p>
-        <p className=" ml-4 font-bold text-lg xl:text-3xl mt-3">{Number(utils.formatEther(lpBalance)).toFixed(5)} <span className="bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">RWADex LP Tokens</span></p>
-        </div>:<></>}
-        {walletConnected ? <button onClick={connectWallet} className=" mr-8 p-2 h-16 rounded-xl border-2 font-bold text-lg border-yellow-200 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-white px-4">Connected</button> : <button onClick={connectWallet} className=" mr-8 p-2 h-16 rounded-xl border-2 font-bold text-lg border-yellow-200 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-white px-4">Connect Wallet</button>}
+          {walletConnected ? <div className="flex-col bg-red-100 pr-10">
+            <p className=" ml-4 font-bold text-lg xl:text-3xl ">{Number(utils.formatEther(cdBalance)).toFixed(5)} RUSD</p>
+            <p className=" ml-4 font-bold text-lg xl:text-3xl mt-3">{Number(utils.formatEther(ethBalance)).toFixed(5)} <span className=" text-red-700">RBNT</span></p>
+            <p className=" ml-4 font-bold text-lg xl:text-3xl mt-3">{Number(utils.formatEther(lpBalance)).toFixed(5)} <span className="bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">RWADex LP Tokens</span></p>
+          </div> : <></>}
+          {walletConnected ? <button onClick={connectWallet} className=" mr-8 p-2 h-16 rounded-xl border-2 font-bold text-lg border-yellow-200 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-white px-4">Connected</button> : <button onClick={connectWallet} className=" mr-8 p-2 h-16 rounded-xl border-2 font-bold text-lg border-yellow-200 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-white px-4">Connect Wallet</button>}
         </div>
       </div>
       <div>
-        <h1 className=" pt-[5%] text-5xl font-semibold font-mono text-center ">RWA Liquidity Pool</h1>
-        <p className="text-2xl font-semibold font-mono pt-[1%] text-center">Provide liquidity to RBNT-RUSD token pair in seconds.</p>
+        <h1 className=" pt-24 text-3xl xl:text-5xl font-semibold font-mono text-center ">RWA Liquidity Pool</h1>
+        <p className="text-xl font-semibold font-mono pt-2 xl:text-2xl text-center">Provide liquidity to RBNT-RUSD token pair in seconds.</p>
       </div>
       {!walletConnected && <div className=" flex justify-center h-96 border-4 mt-4 ml-4 mr-4 rounded-r-lg items-center">
         <p className=" text-center text-3xl font-semibold bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">Connect Your Wallet.</p>
       </div>}
-      {walletConnected && <div className=" flex justify-center pt-[2%] gap-8  ">
-          <div className=" flex-col bg-red-300 h-[30rem] w-[50%] pt-10 ml-10 rounded-3xl ">
-            <div className="main flex-col m-auto mt-5 w-max ">
-              {addLiqButton()}
-              {lpBalance > 0 ? removeLiqButton() : <></>}
+      {walletConnected && <div className=" flex justify-center pt-8 gap-8  ">
+        <div className=" flex-col bg-red-300 h-full w-[50%] max-w-[700px] pt-10 rounded-3xl ">
+          <div className="main flex-col m-auto mt-5 w-max ">
+            <div className="flex-col justify-center ">
+              <p className=" text-xl xl:text-2xl font-bold inline-block ml-6">Add Liquidity</p>
+              <div className="w-[100%] flex-col ml-4 max-w-[550px] xl:flex ">
+                <input 
+                  type="number"
+                  placeholder="Amount of RBNT"
+                  onChange={async (e) => {
+                    setAddEther(e.target.value || "0");
+                    // calculate the number of CD tokens that
+                    // can be added given  e.target.value amount of Eth
+                    const _addCDTokens = await calculateCD(
+                      e.target.value || "0",
+                      etherBalanceContract,
+                      reservedCD
+                    );
+                    setAddCDTokens(_addCDTokens);
+                  }}
+                  className=" mt-4 font-semibold pl-2 pr-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                />
+                <div className={styles.inputDiv}>
+                  {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
+                  <p>{`You will need ${utils.formatEther(addCDTokens)} RUSD Tokens to add liquidity`}</p>
+                  <p className=" bg-red-400 rounded-md p-1 mt-1 text-sm w-auto font-medium">Not enough RUSD? Swap your RBNT to RUSD <a className=" italic font-bold text-blue-900" target="_blank" href="https://rwa-dex.vercel.app/">here</a>.</p>
+
+                </div>
+              </div>
+
+              <button className=" rounded-xl mb-5  border-1 px-14 text-white py-4 bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 hover:from-yellow-500 hover:to-purple-500 hover:via-red-500 ml-4 mt-3" onClick={_addLiquidity}>
+                Add Liquidity
+              </button>
+
             </div>
+            {lpBalance > 0 ? <div className="flex-col justify-center">
+              <p className=" text-xl font-bold inline-block ml-6 mt-4 ">Remove Liquidity</p>
+              <div className=" ml-4 flex-col w-[100%] xl:flex">
+                <input 
+                  type="number"
+                  placeholder="Amount of LP Tokens"
+                  onChange={async (e) => {
+                    setRemoveLPTokens(e.target.value || "0");
+                    // Calculate the amount of Ether and CD tokens that the user would receive
+                    // After he removes e.target.value amount of LP tokens
+                    await _getTokensAfterRemove(e.target.value || "0");
+                  }}
+                  className="  mt-4 font-semibold pl-2 pr-12 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 outline-none appearance-none"
+                />
+                <div className={styles.inputDiv}>
+                  {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
+                  {`You will get ${utils.formatEther(removeCD)} RUSD and ${utils.formatEther(removeEther)} RBNT`}
+                </div>
+              </div>
+              <button className="md:px-10 md:h-16 md:text-base text-sm px-3  rounded-xl border-black border-1 text-white py-4 bg-red-600 ml-4 mt-3 mb-5" onClick={_removeLiquidity}>
+                Remove Liquidity
+              </button>
+            </div> : <></>}
           </div>
-        </div>}
+        </div>
+      </div>}
       {liquidityAdded && activeMessage === 1 ? <p className=" pt-6 text-3xl text-center font-bold bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">Liquidity Added Successfully!</p> : <></>}
       {removedLiquidity && activeMessage === 2 ? <p className=" pt-6 text-3xl text-center font-bold ">Liquidity removed successfully!</p> : <></>}
     </div>
   );
 }
 
-{/* <div className=" flex-col bg-red-300 w-[50%] mr-20 rounded-3xl pt-10 pl-10 xl:hidden">
-            <p className=" ml-4 text-white font-semibold text-lg mt-6 pb-8 pt-2 md:text-3xl">You have: </p>
-            <p className=" ml-4 font-bold text-lg md:text-3xl ">{Number(utils.formatEther(cdBalance)).toFixed(5)} RUSD</p>
-            <p className=" mt-1/2 ml-4 text-sm w-auto font-medium">Not enough RUSD? Swap your RBNT to RUSD <a className=" italic font-bold text-blue-900" target="_blank" href="https://rwa-dex.vercel.app/">here</a>.</p>
 
-            <p className=" ml-4 font-bold text-lg xl:text-3xl mt-3">{Number(utils.formatEther(ethBalance)).toFixed(5)} <span className=" text-red-700">RBNT</span></p>
-            <p className=" ml-4 font-bold text-lg xl:text-3xl mt-3">{Number(utils.formatEther(lpBalance)).toFixed(5)} <span className="bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">RWADex LP Tokens</span></p>
-          </div> */}
-
-          // const { chainId } = await web3Provider.getNetwork();
-          // if (chainId !== 152) {
-          //   window.alert("Change the network to RedbellyDevNet");
-          //   throw new Error("Change network to RedbellyDevNet");
-          // }
-          // {lpBalance > 0 ? removeLiqButton() : <></>}

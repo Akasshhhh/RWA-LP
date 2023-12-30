@@ -54,12 +54,11 @@
 }
 
 .inputDiv {
-  width: 300px;
+  max-width: 300px;
   font-size: large;
   font-weight: bolder;
-  height: 40px;
-  margin: 2%;
-  margin-left: 10%;
+  margin: 12px;
+  margin-left: 10px;
 }
 .select {
   border-radius: 4px;
@@ -81,11 +80,11 @@
   cursor: pointer;
   margin: 2%;
 }
-@media (max-width: 1000px) {
-  .main {
-    width: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+
+
+@media (max-width: 840px){
+  .inputDiv{
+    font-size: small;
+    margin: 2px;
   }
 }
