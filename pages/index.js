@@ -219,7 +219,7 @@ export default function Home() {
         <p className=" text-center text-3xl font-semibold bg-gradient-to-r from-purple-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">Connect Your Wallet.</p>
       </div>}
       {walletConnected && <div className=" flex justify-center pt-8 gap-8  ">
-        <div className=" flex-col bg-red-300 h-full w-[50%] max-w-[700px] pt-10 rounded-3xl ">
+        <div className=" flex-col bg-red-300 h-full w-[50%] max-w-[600px] pt-10 rounded-3xl ">
           <div className="main flex-col m-auto mt-5 w-max ">
             <div className="flex-col justify-center ">
               <p className=" text-xl xl:text-2xl font-bold inline-block ml-6">Add Liquidity</p>
@@ -254,10 +254,11 @@ export default function Home() {
 
             </div>
             {lpBalance > 0 ? <div className="flex-col justify-center">
-              <p className=" text-xl font-bold inline-block ml-6 mt-4 ">Remove Liquidity</p>
+              <p className=" text-xl font-bold break-normal max-w-[300px] xl:w-[]  ml-6 mt-4 ">Remove Liquidity(RWADex LP Tokens)</p>
               <div className=" ml-4 flex-col w-[100%] xl:flex">
                 <input 
                   type="number"
+                  max={Number(utils.formatEther(lpBalance))}
                   placeholder="Amount of LP Tokens"
                   onChange={async (e) => {
                     setRemoveLPTokens(e.target.value || "0");
